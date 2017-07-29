@@ -17,7 +17,6 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +34,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+import static android.util.TypedValue.applyDimension;
+
 /**
  * A fragment representing a single Article detail screen. This fragment is
  * either contained in a {@link ArticleListActivity} in two-pane mode (on
@@ -46,6 +48,7 @@ public class ArticleDetailFragment extends Fragment implements
 
     public static final String ARG_ITEM_ID = "item_id";
     private static final float PARALLAX_FACTOR = 1.25f;
+    private static final int MARGIN = 40;
 
     private Cursor mCursor;
     private long mItemId;
@@ -58,14 +61,13 @@ public class ArticleDetailFragment extends Fragment implements
     private int mScrollY;
     private boolean mIsCard = false;
     private int mStatusBarFullOpacityBottom;
+    private boolean animating = false;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
-    private Toolbar toolbar;
-    private CollapsingToolbarLayout collapsingLayout;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -118,20 +120,6 @@ public class ArticleDetailFragment extends Fragment implements
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
 
-        toolbar = (Toolbar) mRootView.findViewById(R.id.meta_bar);
-        collapsingLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_layout);
-
-        final AppBarLayout toolbarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
-        toolbarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout layout, int offset) {
-                //if((collapsingLayout.getHeight()-toolbar.getHeight()) + offset )
-                System.out.println("test");
-              /*  if (offset <= toolbar.getMinimumHeight()) {
-                    toolbar.findViewById(R.id.article_byline).animate().alpha(0).setDuration(500).start();
-                }*/
-            }
-        });
 
         mStatusBarColorDrawable = new ColorDrawable(0);
         mRootView.findViewById(R.id.feed_container_fab).setOnClickListener(new View.OnClickListener() {
@@ -189,15 +177,46 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     private void bindViews() {
-        if (mRootView == null) {
+        if (mRootView == null)
             return;
-        }
 
-        TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
-        bylineView.setTranslationY(-bylineView.getHeight());
-        bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        final TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
+        final TextView title = (TextView) mRootView.findViewById(R.id.article_title);
+        final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        final Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.meta_bar);
+        final CollapsingToolbarLayout collapsingLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_layout);
+        AppBarLayout appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout layout, int offset) {
+                if (animating)
+                    return;
+                int location = collapsingLayout.getHeight() + offset;
+                if (location <= 148)
+                    bylineView.animate().alpha(0).start();
+                else
+                    bylineView.animate().alpha(1).start();
 
+                if (location <= 128) {
+                    title.animate().translationY(bylineView.getHeight());
+                    title.animate().translationX(applyDimension(COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics())).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            animating = false;
+                        }
+                    }).start();
+                } else {
+                    title.animate().translationY(0);
+                    title.animate().translationX(0).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            animating = false;
+                        }
+                    }).start();
+                }
+                animating = true;
+            }
+        });
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
@@ -248,7 +267,7 @@ public class ArticleDetailFragment extends Fragment implements
                     });
         } else {
             mRootView.setVisibility(View.GONE);
-            toolbar.setTitle("N/A");
+            collapsingLayout.setTitle("N/A");
             bylineView.setText("N/A");
             bodyView.setText("N/A");
         }
