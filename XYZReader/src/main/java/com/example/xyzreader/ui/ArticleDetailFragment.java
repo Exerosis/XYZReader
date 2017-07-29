@@ -10,11 +10,8 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -33,9 +30,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
-import static android.util.TypedValue.COMPLEX_UNIT_DIP;
-import static android.util.TypedValue.applyDimension;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -183,40 +177,40 @@ public class ArticleDetailFragment extends Fragment implements
         final TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         final TextView title = (TextView) mRootView.findViewById(R.id.article_title);
         final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
-        final Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.meta_bar);
+      /*  final Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.meta_bar);
         final CollapsingToolbarLayout collapsingLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_layout);
         AppBarLayout appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout layout, int offset) {
-                if (animating)
-                    return;
-                int location = collapsingLayout.getHeight() + offset;
-                if (location <= 148)
-                    bylineView.animate().alpha(0).start();
-                else
-                    bylineView.animate().alpha(1).start();
-
-                if (location <= 128) {
-                    title.animate().translationY(bylineView.getHeight());
-                    title.animate().translationX(applyDimension(COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics())).withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            animating = false;
-                        }
-                    }).start();
-                } else {
-                    title.animate().translationY(0);
-                    title.animate().translationX(0).withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            animating = false;
-                        }
-                    }).start();
-                }
-                animating = true;
+//                if (animating)
+//                    return;
+//                int location = collapsingLayout.getHeight() + offset;
+//                if (location <= 148)
+//                    bylineView.animate().alpha(0).start();
+//                else
+//                    bylineView.animate().alpha(1).start();
+//
+//                if (location <= 128) {
+//                    title.animate().translationY(bylineView.getHeight());
+//                    title.animate().translationX(applyDimension(COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics())).withEndAction(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            animating = false;
+//                        }
+//                    }).start();
+//                } else {
+//                    title.animate().translationY(0);
+//                    title.animate().translationX(0).withEndAction(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            animating = false;
+//                        }
+//                    }).start();
+//                }
+//                animating = true;
             }
-        });
+        });*/
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
@@ -267,7 +261,7 @@ public class ArticleDetailFragment extends Fragment implements
                     });
         } else {
             mRootView.setVisibility(View.GONE);
-            collapsingLayout.setTitle("N/A");
+//            collapsingLayout.setTitle("N/A");
             bylineView.setText("N/A");
             bodyView.setText("N/A");
         }

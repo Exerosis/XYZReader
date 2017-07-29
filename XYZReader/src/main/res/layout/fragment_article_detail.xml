@@ -4,39 +4,46 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="280dp"
+        android:background="@color/cardview_dark_background">
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_layout"
+        <ImageView
+            android:id="@+id/photo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:contentScrim="@android:color/transparent"
-            app:expandedTitleMarginBottom="28dp"
-            app:expandedTitleTextAppearance="@style/AppTheme.AppBarExpanded"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            app:layout_scrollFlags="scroll" />
 
-            <ImageView
-                android:id="@+id/photo"
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax" />
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="@color/primary" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:background="@android:color/holo_red_dark" />
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/meta_bar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
+                android:layout_height="0dp"
                 android:background="@color/primary"
-                android:orientation="vertical"
-                android:paddingBottom="8dp"
-                android:paddingEnd="16dp"
-                android:paddingStart="16dp"
-                android:paddingTop="4dp"
-                app:layout_collapseMode="pin">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/article_title"
@@ -46,47 +53,28 @@
                     android:fontFamily="sans-serif-condensed"
                     android:lineSpacingMultiplier="0.9"
                     android:paddingBottom="@dimen/detail_metabar_title_bottom_padding"
+                    android:text="The Witcher, Blood of Elves"
                     android:textColor="#fff"
-                    android:textSize="@dimen/detail_title_text_size"
-                    android:textStyle="bold" />
+                    android:textSize="@dimen/detail_title_text_size" />
 
                 <TextView
                     android:id="@+id/article_byline"
                     style="?android:attr/textAppearanceSmall"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#8fff" />
             </LinearLayout>
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/meta_bar"
+            <TextView
+                android:id="@+id/article_body"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="56dp"
-                android:background="@color/accent"
-                app:layout_collapseMode="pin" />
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/scroll"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <TextView
-            android:id="@+id/article_body"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="16dp"
-            android:paddingEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp" />
+                android:layout_height="match_parent"
+                android:paddingBottom="16dp"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp" />
+        </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
-
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/feed_container_fab"
