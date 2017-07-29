@@ -199,7 +199,7 @@ public class ArticleDetailFragment extends Fragment implements
 
                 if (location <= 128) {
                     title.animate().translationY(bylineView.getHeight());
-                    title.animate().translationX(applyDimension(COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics())).withEndAction(new Runnable() {
+                    title.animate().translationX(applyDimension(COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics())).withEndAction(new Runnable() {
                         @Override
                         public void run() {
                             animating = false;
@@ -223,7 +223,7 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            collapsingLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+            title.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
