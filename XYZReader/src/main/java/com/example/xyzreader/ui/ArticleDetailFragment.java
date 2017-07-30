@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.animation.ValueAnimator;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Intent;
@@ -10,8 +11,10 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -112,7 +115,7 @@ public class ArticleDetailFragment extends Fragment implements
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        mPhotoView = (ImageView) mRootView.findViewById(R.id.article_detail_image);
 
 
         mStatusBarColorDrawable = new ColorDrawable(0);
@@ -175,49 +178,17 @@ public class ArticleDetailFragment extends Fragment implements
             return;
 
         final TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
-        final TextView title = (TextView) mRootView.findViewById(R.id.article_title);
         final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
-      /*  final Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.meta_bar);
-        final CollapsingToolbarLayout collapsingLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_layout);
-        AppBarLayout appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout layout, int offset) {
-//                if (animating)
-//                    return;
-//                int location = collapsingLayout.getHeight() + offset;
-//                if (location <= 148)
-//                    bylineView.animate().alpha(0).start();
-//                else
-//                    bylineView.animate().alpha(1).start();
-//
-//                if (location <= 128) {
-//                    title.animate().translationY(bylineView.getHeight());
-//                    title.animate().translationX(applyDimension(COMPLEX_UNIT_DIP, 56, getResources().getDisplayMetrics())).withEndAction(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            animating = false;
-//                        }
-//                    }).start();
-//                } else {
-//                    title.animate().translationY(0);
-//                    title.animate().translationX(0).withEndAction(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            animating = false;
-//                        }
-//                    }).start();
-//                }
-//                animating = true;
-            }
-        });*/
+        final CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.article_detail_toolbar_layout);
+        final Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.article_detail_toolbar);
+
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            title.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            toolbarLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
@@ -244,12 +215,17 @@ public class ArticleDetailFragment extends Fragment implements
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getVibrantColor(getResources().getColor(R.color.accent));
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
-//                                mRootView.findViewById(R.id.feed_container_view_toolbar).setBackgroundColor(mMutedColor);
+                                Palette.Swatch swatch = Palette.generate(bitmap, 12).getVibrantSwatch();
+                                if (swatch != null)
+                                    ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), swatch.getRgb()).addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                        @Override
+                                        public void onAnimationUpdate(ValueAnimator animation) {
+                                            Integer value = (Integer) animation.getAnimatedValue();
+                                            bylineView.setBackgroundColor(value);
+                                            toolbar.setBackgroundColor(value);
+                                        }
+                                    });
                                 updateStatusBar();
                             }
                         }
@@ -261,7 +237,7 @@ public class ArticleDetailFragment extends Fragment implements
                     });
         } else {
             mRootView.setVisibility(View.GONE);
-//            collapsingLayout.setTitle("N/A");
+            toolbarLayout.setTitle("N/A");
             bylineView.setText("N/A");
             bodyView.setText("N/A");
         }
