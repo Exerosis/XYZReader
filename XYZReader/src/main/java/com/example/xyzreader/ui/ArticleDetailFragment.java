@@ -1,10 +1,8 @@
 package com.example.xyzreader.ui;
 
 import android.animation.ValueAnimator;
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.Intent;
-import android.content.Loader;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,7 +10,12 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -39,8 +42,7 @@ import java.util.GregorianCalendar;
  * either contained in a {@link ArticleListActivity} in two-pane mode (on
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
-public class ArticleDetailFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
@@ -65,6 +67,11 @@ public class ArticleDetailFragment extends Fragment implements
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
+
+    private TextView bylineView;
+    private CollapsingToolbarLayout toolbarLayout;
+    private Toolbar toolbar;
+    private FloatingActionButton fab;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -119,7 +126,12 @@ public class ArticleDetailFragment extends Fragment implements
 
 
         mStatusBarColorDrawable = new ColorDrawable(0);
-        mRootView.findViewById(R.id.feed_container_fab).setOnClickListener(new View.OnClickListener() {
+        bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
+        toolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.article_detail_toolbar_layout);
+        toolbar = (Toolbar) mRootView.findViewById(R.id.article_detail_toolbar);
+        fab = (FloatingActionButton) mRootView.findViewById(R.id.article_detail_fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
@@ -129,6 +141,16 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.onSupportNavigateUp();
+            }
+        });
         bindViews();
         updateStatusBar();
         return mRootView;
@@ -149,17 +171,7 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     static float progress(float v, float min, float max) {
-        return constrain((v - min) / (max - min), 0, 1);
-    }
-
-    static float constrain(float val, float min, float max) {
-        if (val < min) {
-            return min;
-        } else if (val > max) {
-            return max;
-        } else {
-            return val;
-        }
+        return Math.max(Math.min((v - min) / (max - min), 1), 0);
     }
 
     private Date parsePublishedDate() {
@@ -176,11 +188,7 @@ public class ArticleDetailFragment extends Fragment implements
     private void bindViews() {
         if (mRootView == null)
             return;
-
-        final TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
-        final CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.article_detail_toolbar_layout);
-        final Toolbar toolbar = (Toolbar) mRootView.findViewById(R.id.article_detail_toolbar);
 
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
@@ -188,7 +196,7 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            toolbarLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+            toolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
@@ -215,10 +223,12 @@ public class ArticleDetailFragment extends Fragment implements
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                Palette.Swatch swatch = Palette.generate(bitmap, 12).getVibrantSwatch();
-                                if (swatch != null)
-                                    ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), swatch.getRgb()).addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                mPhotoView.setImageBitmap(bitmap);
+                                Palette.Swatch darkSwatch = Palette.from(bitmap).generate().getDarkVibrantSwatch();
+                                Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
+                                if (darkSwatch != null) {
+                                    ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), darkSwatch.getRgb());
+                                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                                         @Override
                                         public void onAnimationUpdate(ValueAnimator animation) {
                                             Integer value = (Integer) animation.getAnimatedValue();
@@ -226,6 +236,18 @@ public class ArticleDetailFragment extends Fragment implements
                                             toolbar.setBackgroundColor(value);
                                         }
                                     });
+                                    animator.start();
+                                }
+                                if (swatch != null) {
+                                    ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), swatch.getRgb());
+                                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                        @Override
+                                        public void onAnimationUpdate(ValueAnimator animation) {
+                                            fab.setBackgroundTintList(ColorStateList.valueOf((Integer) animation.getAnimatedValue()));
+                                        }
+                                    });
+                                    animator.start();
+                                }
                                 updateStatusBar();
                             }
                         }
@@ -237,7 +259,7 @@ public class ArticleDetailFragment extends Fragment implements
                     });
         } else {
             mRootView.setVisibility(View.GONE);
-            toolbarLayout.setTitle("N/A");
+            toolbar.setTitle("N/A");
             bylineView.setText("N/A");
             bodyView.setText("N/A");
         }

@@ -1,6 +1,5 @@
 <resources>
 
-
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
@@ -16,12 +15,5 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="AppTheme.AppBarExpanded" parent="@android:style/TextAppearance.Large">
-        <item name="android:textSize">@dimen/detail_title_text_size</item>
-        <item name="android:textColor">#FFF</item>
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:lineSpacingMultiplier">0.9</item>
-    </style>
 
 </resources>

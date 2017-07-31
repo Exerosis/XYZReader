@@ -1,15 +1,16 @@
 package com.example.xyzreader.ui;
 
-import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Html;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -35,9 +37,7 @@ import java.util.GregorianCalendar;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends ActionBarActivity implements
-        LoaderManager.LoaderCallbacks<Cursor> {
-
+public class ArticleListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = ArticleListActivity.class.toString();
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
@@ -60,9 +60,10 @@ public class ArticleListActivity extends ActionBarActivity implements
                 startService(new Intent(ArticleListActivity.this, UpdaterService.class));
             }
         });
+
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.item_offset));
-        getLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
             refresh();
@@ -76,8 +77,7 @@ public class ArticleListActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        registerReceiver(mRefreshingReceiver,
-                new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
+        registerReceiver(mRefreshingReceiver, new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
     }
 
     @Override
@@ -147,6 +147,15 @@ public class ArticleListActivity extends ActionBarActivity implements
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
                 }
             });
+            view.findViewById(R.id.feed_entry_share).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(ArticleListActivity.this)
+                            .setType("text/plain")
+                            .setText("Some sample text")
+                            .getIntent(), getString(R.string.action_share)));
+                }
+            });
             return vh;
         }
 
@@ -198,11 +207,19 @@ public class ArticleListActivity extends ActionBarActivity implements
         public TextView titleView;
         public TextView subtitleView;
 
-        public ViewHolder(View view) {
+        public ViewHolder(final View view) {
             super(view);
             thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+
+            view.findViewById(R.id.feed_entry_like).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(view.getContext(), "Feature is just for display!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }
     }
 }
