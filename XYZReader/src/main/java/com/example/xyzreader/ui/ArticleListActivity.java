@@ -213,7 +213,7 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
 
-            view.findViewById(R.id.feed_entry_like).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(R.id.feed_entry_share).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(view.getContext(), "Feature is just for display!", Toast.LENGTH_SHORT).show();

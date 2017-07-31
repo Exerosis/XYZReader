@@ -40,7 +40,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-
                 android:maxLines="1"
                 android:minLines="1"
                 android:textColor="@color/secondary_text" />
@@ -54,7 +53,7 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/feed_entry_like"
+                android:id="@+id/feed_entry_bookmark"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -67,7 +66,7 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/content_description_share_article"
-                app:srcCompat="@drawable/ic_bookmark" />
+                app:srcCompat="@drawable/ic_share" />
 
         </LinearLayout>
 
