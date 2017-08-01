@@ -33,7 +33,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ArticleListActivity" />
+                android:value="ui.ArticleDetailActivity" />
         </activity>
 
         <service

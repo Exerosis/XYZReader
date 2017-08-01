@@ -17,6 +17,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -60,9 +61,9 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
                 startService(new Intent(ArticleListActivity.this, UpdaterService.class));
             }
         });
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.item_offset));
+        mRecyclerView.setHasFixedSize(true);
         getSupportLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
@@ -113,9 +114,7 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
         int columnCount = getResources().getInteger(R.integer.list_column_count);
-        StaggeredGridLayoutManager sglm =
-                new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(sglm);
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL));
     }
 
     @Override
@@ -132,13 +131,13 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
 
         @Override
         public long getItemId(int position) {
-            mCursor.moveToPosition(position);
+                    mCursor.moveToPosition(position);
             return mCursor.getLong(ArticleLoader.Query._ID);
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
