@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.Executors;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -164,7 +166,19 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\\[(.*?)\\])", "").replaceAll("(\r\n\r\n|\n\n|\r\r)", "<br /><br />")));
+            Executors.defaultThreadFactory().newThread(new Runnable() {
+                @Override
+                public void run() {
+                    final Spanned text = Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\\[(.*?)\\])", "").replaceAll("(\r\n\r\n|\n\n|\r\r)", "<br /><br />"));
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            bodyView.setText(text);
+                        }
+                    });
+                }
+            }).start();
+
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
