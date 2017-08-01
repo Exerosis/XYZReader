@@ -196,32 +196,37 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
                                 mPhotoView.setImageBitmap(bitmap);
-                                Palette.Swatch darkSwatch = Palette.from(bitmap).generate().getDarkVibrantSwatch();
-                                Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
-                                if (darkSwatch != null) {
-                                    ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), darkSwatch.getRgb());
-                                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                                        @Override
-                                        public void onAnimationUpdate(ValueAnimator animation) {
-                                            Integer value = (Integer) animation.getAnimatedValue();
-                                            bylineView.setBackgroundColor(value);
-                                            toolbar.setBackgroundColor(value);
-                                            toolbarLayout.setStatusBarScrimColor(value);
+                                Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                                    @Override
+                                    public void onGenerated(Palette palette) {
+                                        Palette.Swatch darkSwatch = palette.getDarkVibrantSwatch();
+                                        Palette.Swatch swatch = palette.getVibrantSwatch();
+                                        if (darkSwatch != null) {
+                                            ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), darkSwatch.getRgb());
+                                            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                                @Override
+                                                public void onAnimationUpdate(ValueAnimator animation) {
+                                                    Integer value = (Integer) animation.getAnimatedValue();
+                                                    bylineView.setBackgroundColor(value);
+                                                    toolbar.setBackgroundColor(value);
+                                                    toolbarLayout.setStatusBarScrimColor(value);
+                                                }
+                                            });
+                                            animator.start();
                                         }
-                                    });
-                                    animator.start();
-                                }
 
-                                if (swatch != null) {
-                                    ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), swatch.getRgb());
-                                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                                        @Override
-                                        public void onAnimationUpdate(ValueAnimator animation) {
-                                            fab.setBackgroundTintList(ColorStateList.valueOf((Integer) animation.getAnimatedValue()));
+                                        if (swatch != null) {
+                                            ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), swatch.getRgb());
+                                            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                                @Override
+                                                public void onAnimationUpdate(ValueAnimator animation) {
+                                                    fab.setBackgroundTintList(ColorStateList.valueOf((Integer) animation.getAnimatedValue()));
+                                                }
+                                            });
+                                            animator.start();
                                         }
-                                    });
-                                    animator.start();
-                                }
+                                    }
+                                });
                             }
                         }
 
