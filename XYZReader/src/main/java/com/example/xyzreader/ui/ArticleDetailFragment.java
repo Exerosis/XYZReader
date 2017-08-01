@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -43,23 +42,13 @@ import java.util.GregorianCalendar;
  */
 public class ArticleDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ArticleDetailFragment";
-
     public static final String ARG_ITEM_ID = "item_id";
-    private static final float PARALLAX_FACTOR = 1.25f;
-    private static final int MARGIN = 40;
 
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
-    private int mMutedColor = 0xFF333333;
-    private ColorDrawable mStatusBarColorDrawable;
 
-    private int mTopInset;
     private ImageView mPhotoView;
-    private int mScrollY;
-    private boolean mIsCard = false;
-    private int mStatusBarFullOpacityBottom;
-    private boolean animating = false;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -95,9 +84,6 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
             mItemId = getArguments().getLong(ARG_ITEM_ID);
         }
 
-        mIsCard = getResources().getBoolean(R.bool.detail_is_card);
-        mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
-                R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
     }
 
@@ -108,59 +94,13 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
-        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
-        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
-        // we do this in onActivityCreated.
-        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.article_detail_image);
-
-
-        mStatusBarColorDrawable = new ColorDrawable(0);
-        bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
-        toolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.article_detail_toolbar_layout);
-        toolbar = (Toolbar) mRootView.findViewById(R.id.article_detail_toolbar);
-        fab = (FloatingActionButton) mRootView.findViewById(R.id.article_detail_fab);
-
-        final AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.onSupportNavigateUp();
-            }
-        });
-        bindViews();
-        updateStatusBar();
+        getLoaderManager().initLoader(0, null, this);
         return mRootView;
-    }
-
-    private void updateStatusBar() {
-        int color = 0;
-        if (mPhotoView != null && mTopInset != 0 && mScrollY > 0) {
-            float f = progress(mScrollY,
-                    mStatusBarFullOpacityBottom - mTopInset * 3,
-                    mStatusBarFullOpacityBottom - mTopInset);
-            color = Color.argb((int) (255 * f),
-                    (int) (Color.red(mMutedColor) * 0.9),
-                    (int) (Color.green(mMutedColor) * 0.9),
-                    (int) (Color.blue(mMutedColor) * 0.9));
-        }
-        mStatusBarColorDrawable.setColor(color);
-    }
-
-    static float progress(float v, float min, float max) {
-        return Math.max(Math.min((v - min) / (max - min), 1), 0);
     }
 
     private Date parsePublishedDate() {
@@ -177,6 +117,26 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     private void bindViews() {
         if (mRootView == null)
             return;
+        mPhotoView = (ImageView) mRootView.findViewById(R.id.article_detail_image);
+
+        bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
+        toolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.article_detail_toolbar_layout);
+        toolbar = (Toolbar) mRootView.findViewById(R.id.article_detail_toolbar);
+        fab = (FloatingActionButton) mRootView.findViewById(R.id.article_detail_fab);
+
+        toolbarLayout.setStatusBarScrimResource(R.color.primary);
+
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.onSupportNavigateUp();
+            }
+        });
+
         final TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -230,10 +190,12 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
                                             Integer value = (Integer) animation.getAnimatedValue();
                                             bylineView.setBackgroundColor(value);
                                             toolbar.setBackgroundColor(value);
+                                            toolbarLayout.setStatusBarScrimColor(value);
                                         }
                                     });
                                     animator.start();
                                 }
+
                                 if (swatch != null) {
                                     ValueAnimator animator = ValueAnimator.ofArgb(((ColorDrawable) bylineView.getBackground()).getColor(), swatch.getRgb());
                                     animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -244,7 +206,6 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
                                     });
                                     animator.start();
                                 }
-                                updateStatusBar();
                             }
                         }
 

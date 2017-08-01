@@ -63,6 +63,7 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
         });
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.item_offset));
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(getResources().getInteger(R.integer.col_count), StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setHasFixedSize(true);
         getSupportLoaderManager().initLoader(0, null, this);
 
@@ -113,8 +114,6 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
         mRecyclerView.setAdapter(adapter);
-        int columnCount = getResources().getInteger(R.integer.list_column_count);
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL));
     }
 
     @Override
@@ -131,7 +130,7 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
 
         @Override
         public long getItemId(int position) {
-                    mCursor.moveToPosition(position);
+            mCursor.moveToPosition(position);
             return mCursor.getLong(ArticleLoader.Query._ID);
         }
 
