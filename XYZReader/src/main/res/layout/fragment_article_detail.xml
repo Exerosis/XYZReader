@@ -23,7 +23,7 @@
             <ImageView
                 android:id="@+id/article_detail_image"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="400dp"
                 android:contentDescription="@string/content_description_background_image"
                 android:elevation="0dp"
                 android:fitsSystemWindows="true"
