@@ -43,7 +43,6 @@
                 android:maxLines="1"
                 android:minLines="1"
                 android:textColor="@color/secondary_text" />
-
         </LinearLayout>
 
 

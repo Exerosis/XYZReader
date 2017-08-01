@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
@@ -19,7 +20,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -147,15 +147,6 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
                             ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
                 }
             });
-            view.findViewById(R.id.feed_entry_share).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(ArticleListActivity.this)
-                            .setType("text/plain")
-                            .setText("Some sample text")
-                            .getIntent(), getString(R.string.action_share)));
-                }
-            });
             return vh;
         }
 
@@ -174,6 +165,15 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
         public void onBindViewHolder(ViewHolder holder, int position) {
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            holder.itemView.findViewById(R.id.feed_entry_share).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(ArticleListActivity.this)
+                            .setType("text/plain")
+                            .setText(mCursor.getString(ArticleLoader.Query.BODY))
+                            .getIntent(), getString(R.string.action_share)));
+                }
+            });
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
 
@@ -213,10 +213,10 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
 
-            view.findViewById(R.id.feed_entry_share).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(R.id.feed_entry_bookmark).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(view.getContext(), "Feature is just for display!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(view, "Feature is just for display!", Snackbar.LENGTH_SHORT).show();
                 }
             });
 
